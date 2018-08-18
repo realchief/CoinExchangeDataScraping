@@ -12,7 +12,8 @@ import os
 import sys
 import datetime as dt
 
-from bittrex import Bittrex
+
+from binance.client import Client
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 
@@ -101,41 +102,73 @@ def get_arg(index, default=None):
 
 def get_data():
 
-    db_name = 'BB_coins'
-    trader = get_arg(1, 'VIVEK')  # 'LANDON', 'CHRISTIAN' OR 'VIVEK.
-    collection = '{}_coinigy_account'.format(trader)
-    try:
-        db_user = 'Writeuser'
-        db_password = os.environ['MONGO-WRITE-PASSWORD']
-        host = 'mongodb://{}:{}@127.0.0.1'.format(db_user, db_password)
-    except KeyError:
-        host = 'localhost'
-    db = MyMongoClient(db_name, collection_name=collection,
-                       host=host)
+    # db_name = 'Binance_coins'
+    # trader = get_arg(1, 'VIVEK')  # 'LANDON', 'CHRISTIAN' OR 'VIVEK.
+    # collection = '{}_binance_account'.format(trader)
+    # try:
+    #     db_user = 'Writeuser'
+    #     db_password = os.environ['MONGO-WRITE-PASSWORD']
+    #     host = 'mongodb://{}:{}@127.0.0.1'.format(db_user, db_password)
+    # except KeyError:
+    #     host = 'localhost'
+    # db = MyMongoClient(db_name, collection_name=collection,
+    #                    host=host)
 
-    json_data = []
-    market_history_total_data = []
-    balance_curr_codes = []
-    market_names = []
+    # balance_curr_codes = []
+    # market_names = []
 
-    key, secret = "54680684a8cb481c9f99a5f0ccaa1841", "4009a8a233114ab8a16f03c856d03752"
-    api = Bittrex(api_key=key, api_secret=secret)
-    markets_data = api.get_markets()["result"]
+    api_key = "q4U0jtwsM7VxGKsuby4i3ci4QA9e7bAaUWHZnTmnNtf5ixn0RHlJbs63x7rowRvr"
+    secret_key = "Axrzdanlpgt0izeblt4BTaAhhWlMe9g1mKsLhigYgWzXuuQjwNFANXLxBbHOUuA7"
 
-    for markets_datum in markets_data:
-        if markets_datum["BaseCurrency"] == 'BTC':
-            balance_curr_codes.append(markets_datum["MarketCurrency"])
-            market_names.append(markets_datum["MarketName"])
+    client = Client(api_key, secret_key)
+    client.ping()
+    info = client.get_exchange_info()
+    symbol_info = client.get_symbol_info('BNBBTC')
+    product_info = client.get_products()
+    depth = client.get_order_book(symbol='BNBBTC')
 
-    for market_name in market_names:
-        market_history_data = api.get_market_history(market_name, count=1)["result"][0]
-        balance_curr_code = market_name.split('-')[1]
-        json_data = ({
-                      'balance_curr_code': balance_curr_code,
-                      'last_price': market_history_data['Price'],
-                      'TimeStamp': market_history_data['TimeStamp']})
+    # Used in getting Highest trade Volume
+    trades = client.get_recent_trades(symbol='BNBBTC')
 
-        db.insert_one(json_data)
+    # Will be used in getting Highest profit(%) and profit($)
+    trades = client.get_historical_trades(symbol='BNBBTC')
+
+    # Get aggregate trades
+    trades_aggre = client.get_aggregate_trades(symbol='BNBBTC')
+
+    # ====Aggregate Trade Iterator ====
+    agg_trades = client.aggregate_trade_iter(symbol='ETHBTC', start_str='30 minutes ago UTC')
+    # iterate over the trade iterator
+    for trade in agg_trades:
+        print(trade)
+        # do something with the trade data
+
+    # convert the iterator to a list
+    # note: generators can only be iterated over once so we need to call it again
+    agg_trades = client.aggregate_trade_iter(symbol='ETHBTC', start_str='30 minutes ago UTC')
+    agg_trade_list = list(agg_trades)
+
+    # Will be used in getting priceChangePercent,  priceChange and Volume(Price*count or quoteVolume)
+    tickers = client.get_ticker()
+
+    # Get All prices
+    prices = client.get_all_tickers()
+
+
+    # for markets_datum in markets_data:
+    #     if markets_datum["BaseCurrency"] == 'BTC':
+    #         balance_curr_codes.append(markets_datum["MarketCurrency"])
+    #         market_names.append(markets_datum["MarketName"])
+    #
+    # for market_name in market_names:
+    #     market_history_data = api.get_market_history(market_name, count=1)["result"][0]
+    #     balance_curr_code = market_name.split('-')[1]
+    #     json_data = ({
+    #                   'balance_curr_code': balance_curr_code,
+    #                   'last_price': market_history_data['Price'],
+    #                   'TimeStamp': market_history_data['TimeStamp']})
+    #
+    #     db.insert_one(json_data)
 
 if __name__ == "__main__":
 
