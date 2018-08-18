@@ -1,3 +1,5 @@
+
+
 from __future__ import print_function
 
 import pymongo
@@ -6,18 +8,12 @@ import datetime
 from ast import literal_eval
 import redis
 
-from lxml import html
 import os
 import sys
 import datetime as dt
-import json
-import requests
-from time import sleep
+
 from bittrex import Bittrex
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-
-# from common import get_arg
-# Update Python Path to be able to load custom modules. Do not change line position.
 
 
 class Subscriber:
