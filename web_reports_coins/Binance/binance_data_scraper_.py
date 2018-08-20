@@ -114,61 +114,26 @@ def get_data():
     db = MyMongoClient(db_name, collection_name=collection,
                        host=host)
 
-    balance_curr_codes = []
-    market_names = []
-
     api_key = "q4U0jtwsM7VxGKsuby4i3ci4QA9e7bAaUWHZnTmnNtf5ixn0RHlJbs63x7rowRvr"
     secret_key = "Axrzdanlpgt0izeblt4BTaAhhWlMe9g1mKsLhigYgWzXuuQjwNFANXLxBbHOUuA7"
 
+    coinExchangeInfo = {}
+
     client = Client(api_key, secret_key)
     client.ping()
-    info = client.get_exchange_info()
-    symbol_info = client.get_symbol_info('BNBBTC')
-    product_info = client.get_products()
-    depth = client.get_order_book(symbol='BNBBTC')
 
-    # Used in getting Highest trade Volume
-    trades = client.get_recent_trades(symbol='BNBBTC')
+    symbols = client.get_exchange_info()['symbols']
+    for symbol in symbols:
+        symbol_name = symbol['symbol']
 
-    # Will be used in getting Highest profit(%) and profit($)
-    trades = client.get_historical_trades(symbol='BNBBTC')
+        coinExchangeInfo['symbol_name'] = symbol_name
+        coinExchangeInfo['highest_profit'] = client.get_ticker(symbol=symbol_name)['priceChangePercent']
+        coinExchangeInfo['highest_total_profit'] = client.get_ticker(symbol=symbol_name)['priceChange']
+        coinExchangeInfo['highest_trade_volume'] = client.get_ticker(symbol=symbol_name)['volume']
+        coinExchangeInfo['highest_trade_frequency'] = client.get_ticker(symbol=symbol_name)['count']
+        db.insert_one(coinExchangeInfo)
+        print (coinExchangeInfo)
 
-    # Get aggregate trades
-    trades_aggre = client.get_aggregate_trades(symbol='BNBBTC')
-
-    # ====Aggregate Trade Iterator ====
-    agg_trades = client.aggregate_trade_iter(symbol='ETHBTC', start_str='30 minutes ago UTC')
-    # iterate over the trade iterator
-    for trade in agg_trades:
-        print(trade)
-        # do something with the trade data
-
-    # convert the iterator to a list
-    # note: generators can only be iterated over once so we need to call it again
-    agg_trades = client.aggregate_trade_iter(symbol='ETHBTC', start_str='30 minutes ago UTC')
-    agg_trade_list = list(agg_trades)
-
-    # Will be used in getting priceChangePercent,  priceChange and Volume(Price*count or quoteVolume)
-    tickers = client.get_ticker()
-
-    # Get All prices
-    prices = client.get_all_tickers()
-
-
-    # for markets_datum in markets_data:
-    #     if markets_datum["BaseCurrency"] == 'BTC':
-    #         balance_curr_codes.append(markets_datum["MarketCurrency"])
-    #         market_names.append(markets_datum["MarketName"])
-    #
-    # for market_name in market_names:
-    #     market_history_data = api.get_market_history(market_name, count=1)["result"][0]
-    #     balance_curr_code = market_name.split('-')[1]
-    #     json_data = ({
-    #                   'balance_curr_code': balance_curr_code,
-    #                   'last_price': market_history_data['Price'],
-    #                   'TimeStamp': market_history_data['TimeStamp']})
-    #
-    #     db.insert_one(json_data)
 
 if __name__ == "__main__":
 
