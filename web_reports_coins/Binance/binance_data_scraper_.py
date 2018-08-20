@@ -103,8 +103,7 @@ def get_arg(index, default=None):
 def get_data():
 
     db_name = 'Binance_coins'
-    trader = get_arg(1, 'VIVEK')  # 'LANDON', 'CHRISTIAN' OR 'VIVEK.
-    collection = '{}_binance_account'.format(trader)
+    collection = 'coin_binance_account'
     try:
         db_user = 'Writeuser'
         db_password = os.environ['MONGO-WRITE-PASSWORD']
