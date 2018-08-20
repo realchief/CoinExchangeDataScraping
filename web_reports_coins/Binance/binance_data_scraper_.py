@@ -102,20 +102,20 @@ def get_arg(index, default=None):
 
 def get_data():
 
-    # db_name = 'Binance_coins'
-    # trader = get_arg(1, 'VIVEK')  # 'LANDON', 'CHRISTIAN' OR 'VIVEK.
-    # collection = '{}_binance_account'.format(trader)
-    # try:
-    #     db_user = 'Writeuser'
-    #     db_password = os.environ['MONGO-WRITE-PASSWORD']
-    #     host = 'mongodb://{}:{}@127.0.0.1'.format(db_user, db_password)
-    # except KeyError:
-    #     host = 'localhost'
-    # db = MyMongoClient(db_name, collection_name=collection,
-    #                    host=host)
+    db_name = 'Binance_coins'
+    trader = get_arg(1, 'VIVEK')  # 'LANDON', 'CHRISTIAN' OR 'VIVEK.
+    collection = '{}_binance_account'.format(trader)
+    try:
+        db_user = 'Writeuser'
+        db_password = os.environ['MONGO-WRITE-PASSWORD']
+        host = 'mongodb://{}:{}@127.0.0.1'.format(db_user, db_password)
+    except KeyError:
+        host = 'localhost'
+    db = MyMongoClient(db_name, collection_name=collection,
+                       host=host)
 
-    # balance_curr_codes = []
-    # market_names = []
+    balance_curr_codes = []
+    market_names = []
 
     api_key = "q4U0jtwsM7VxGKsuby4i3ci4QA9e7bAaUWHZnTmnNtf5ixn0RHlJbs63x7rowRvr"
     secret_key = "Axrzdanlpgt0izeblt4BTaAhhWlMe9g1mKsLhigYgWzXuuQjwNFANXLxBbHOUuA7"
